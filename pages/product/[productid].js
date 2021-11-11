@@ -1,16 +1,17 @@
-import { useRouter } from 'next/router'
-import Header from "../../components/Header"
-import {Grid,Button,IconButton} from "@mui/material"
-import ProductSingleCard from '../../components/ProductSingleCard';
-import Image from "next/image"
+import {Cart} from "../../context/CartContext"
+import {useContext,useState} from "react"
+import {Button, Grid, IconButton} from "@mui/material"
 import { alpha, styled } from '@mui/material/styles';
+
 import Accordion from '@mui/material/Accordion';
-import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
-import Typography from '@mui/material/Typography';
+import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-
+import Header from "../../components/Header"
+import Image from "next/image"
+import Typography from '@mui/material/Typography';
+import { useRouter } from 'next/router'
 
 const ContainerDiv=styled("div")(({theme})=>({
     padding:10,
@@ -21,12 +22,24 @@ const ContainerDiv=styled("div")(({theme})=>({
     }
 }))
 
-const addToCart=()=>{
-    sessionStorage.setItem('cart','itemObject')
-    console.log(sessionStorage.getItem('cart'))
-}
 
 const ProductDetail=({product})=>{
+
+    const [qty,setQty]=useState(0)
+
+    const {state,dispatch}=useContext(Cart)
+
+
+    const addToCart=(product)=>{
+        dispatch({
+            type:"ADD_TO_CART",
+            payload:{...product,qty}
+        })
+
+        alert("ADDED")
+
+
+    }
     const router=useRouter()
         if (router.isFallback) {
         return <div>Loading...</div>
@@ -34,11 +47,11 @@ const ProductDetail=({product})=>{
     return (
       <div>
         <Header />
-        <ContainerDiv>''
+        <ContainerDiv>
             <Grid container  >
                 <Grid item xs={12} md={4}>
                     <Image
-                        src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
+                        src={product.image}
                         width="400"
                         height="600"
                         />
@@ -77,7 +90,7 @@ const ProductDetail=({product})=>{
                                         <Typography variant="h5">Quantity</Typography>
                                     </Grid>
                                     <Grid item>
-                                        <input type="number" style={{width:40,height:40}} min="0"/>
+                                        <input type="number" style={{width:40,height:40}} min="0" value={qty} onChange={(e)=>setQty(e.target.value)}/>
                                     </Grid>
                                  </Grid>
                              </ContainerDiv>
@@ -85,7 +98,7 @@ const ProductDetail=({product})=>{
                         </ContainerDiv>
 
                             <Button variant="contained"
-                                onClick={()=>addToCart()}
+                                onClick={()=>addToCart(product)}
                                 >Add To Cart</Button>
 
                     </ContainerDiv>
@@ -101,7 +114,10 @@ export const getStaticProps=async (req,res)=>{
         const results=await fetch("https://fakestoreapi.com/products")
         const data=await results.json()
         const {productid} =req.params
-     const product=data.find((product)=>{return product.id==productid})
+         const product=data.find((product)=>{return product.id==productid})
+  
+     
+     
 
 
     return {
@@ -115,6 +131,10 @@ export const getStaticPaths=async ()=>{
         const params=data.slice(0,4).map(product=>{
             return {params:{productid:product.id.toString()}}
         })
+
+   
+
+
     return {
         paths:params,
         fallback:true

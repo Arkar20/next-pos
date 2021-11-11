@@ -1,5 +1,6 @@
-import { alpha, styled } from '@mui/material/styles';
-
+import {useContext,useMemo} from "react"
+import {Cart} from "../context/CartContext"
+import {  alpha, styled } from '@mui/material/styles';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -30,6 +31,8 @@ import SendIcon from '@mui/icons-material/Send';
 import Grid from '@mui/material/Grid';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
 import Slide from '@mui/material/Slide';
+import ShoppingCart from "./ui/ShoppingCart"
+
 
 const HeaderMargin=styled('div')(({theme})=>({
      ...theme.mixins.toolbar,
@@ -68,7 +71,7 @@ const SearchIconWrapper = styled('div')(({ theme }) => ({
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: 'inherit',
-  '& .MuiInputBase-input': { 
+  '& .MuiInputBase-input': {
     padding: theme.spacing(1, 1, 1, 0),
 
     // // vertical padding + font size from searchIcon
@@ -95,14 +98,18 @@ const list= (
                 // onKeyDown={()=toggleDrawer(anchor, false)}
               >
                 <List disablePadding={true} style={{width:"20em"}}>
-                  {['Home', 'About'].map((text, index) => (
-                    <ListItem button key={text} style={{padding:'20px',justifyContent:'center'}} component={Link} href={`\${text}`}>
+                    <ListItem button  style={{padding:'20px',justifyContent:'center'}} component={Link} href="/Home">
                       <ListItemIcon>
-                          {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
+                          <InboxIcon /> 
                       </ListItemIcon>
-                      <ListItemText primary={text} />
+                      <ListItemText primary="Home" />
                     </ListItem>
-                  ))}
+                    <ListItem button  style={{padding:'20px',justifyContent:'center'}} component={Link} href="/about">
+                      <ListItemIcon>
+                          <MailIcon /> 
+                      </ListItemIcon>
+                      <ListItemText primary="About" />
+                    </ListItem>
                 </List>
                 {/* <Divider /> */}
           </Box>
@@ -128,29 +135,32 @@ const trigger = useScrollTrigger({
 
 
 const Header = (props) => {
+
+  const data =useContext(Cart)
+  // const cart={state}
+  const totalcartitems=useMemo(()=>data.state.reduce((total,item)=>{
+    console.log('this renders')
+    return total+Number(item.qty)
+  },0),[data.state])
+
+
+
    const [state, setState] = useState({
      right:false,
      left:false
    })
 
-    const toggleDrawer = (drawerposition) => {
-      
-        setState(state=>{
-          if(drawerposition=='left')
-          {
-            return {left:true,right:false}
-          }
-          else{
-            return {right:true,true:false}
+   
 
-          }
-        })
+   const toggleDrawer = (anchor, open) =>  {
+    // if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+    //   return;
+    // }
+    console.log(anchor)
+    setState({ ...state, [anchor]: open });
   };
 
-  const closeDrawer=()=>{
-    setState(()=>({ left:false,
-     right:false}))
-  }
+ 
    
 
   return(<div>
@@ -165,7 +175,7 @@ const Header = (props) => {
                   color="inherit"
                   aria-label="open drawer"
                   sx={{ mr: 2 }}
-                  onClick={()=>toggleDrawer('left')}
+                  onClick={()=>toggleDrawer("left", true)}
                 >
                   <MenuIcon />
                 </IconButton>
@@ -192,9 +202,9 @@ const Header = (props) => {
                       color="inherit"
                       aria-label="menu"
                       sx={{ padding: 2 }}
-                      onClick={()=>toggleDrawer()}
+                      onClick={()=>toggleDrawer("right", true)}
                  >
-                   <Badge badgeContent={4} color="error">
+                   <Badge badgeContent={totalcartitems} color="error">
                             <ShoppingCartIcon />
                   </Badge>
 
@@ -212,57 +222,17 @@ const Header = (props) => {
            <SwipeableDrawer
               anchor='left'
               open={state.left}
-              onClose={()=>closeDrawer()}
-              onOpen={()=>toggleDrawer('left')}
+              onClose={()=>toggleDrawer("left", false)}
+              onOpen={()=>toggleDrawer("left", true)}
           >
                {list}
          </SwipeableDrawer>
 
 
-           <SwipeableDrawer
-              anchor='right'
-              open={state.right}
-              onClose={()=>closeDrawer()}
-              onOpen={()=>toggleDrawer('right')}
-          >
-        <Typography variant="h5" style={{padding:10}}>Shopping Cart</Typography>
-      <List sx={{ width: '20em', maxWidth: 360, bgcolor: 'background.paper',margin:0}}>
-      {[0, 1, 2, 3].map((value) => {
-        const labelId = `checkbox-list-label-${value}`;
-
-        return (
-          <ListItem
-            key={value}
-            secondaryAction={
-              <IconButton edge="end" aria-label="comments">
-                 <DeleteIcon color="error"/>
-              </IconButton>
-            }
-            disablePadding
-          >
-            <ListItemButton role={undefined}  dense>
-              <ListItemIcon>
-                {
-                   <img
-                    src="https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg"
-                    alt="img itlte"
-                    loading="lazy"
-                    width="40"
-                  />
-                }
-              </ListItemIcon>
-              <ListItemText id={labelId} primary="Adidas" secondary="Qty x 3" />
-            </ListItemButton>
-          </ListItem>
-        );
-      })}
-    </List>
-    <div style={{width:"100%",display:'flex',justifyContent:'center'}}>
-        <Button variant="contained" endIcon={<SendIcon />}>
-              Checkout
-      </Button>
-      </div>
-         </SwipeableDrawer>
+        <ShoppingCart 
+                drawerstate={state}
+                toggleDrawer={toggleDrawer}
+            />
        <HeaderMargin />
     </div>
     );

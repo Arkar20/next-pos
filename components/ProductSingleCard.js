@@ -8,7 +8,6 @@ import Image from "next/image"
 import Link from "../src/Link"
 
 const ProductSingleCard = ({data}) => {
-  console.log(data.image)
     return (
       <Card >
         <CardActionArea
