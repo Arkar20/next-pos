@@ -16,15 +16,15 @@ export const getServerSideProps =async (context) => {
     
     console.log(session)
 
-    if (!session) {
-        return {
-          redirect: {
-            destination:
-              `/auth/signin?callbackUrl=${process.env.URL}/profile`,
-            permanent: false,
-          },
-        };
-    }
+//     if (!session) {
+//         return {
+//           redirect: {
+//             destination:
+//               `/auth/signin?callbackUrl=${process.env.URL}/profile`,
+//             permanent: false,
+//           },
+//         };
+//     }
     return {
         props: {
             usersession:session
