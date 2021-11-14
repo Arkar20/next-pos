@@ -1,6 +1,6 @@
-import { getSession } from "next-auth/react"
-import Image from "next/image"
 import Header from "../components/Header"
+import Image from "next/image"
+import { getSession } from "next-auth/react"
 const Profile = ({usersession}) => {
     console.log(usersession)
     return  (<>
@@ -20,7 +20,7 @@ export const getServerSideProps =async (context) => {
         return {
           redirect: {
             destination:
-              "/auth/signin?callbackUrl=http://localhost:3000/profile",
+              `/auth/signin?callbackUrl=${process.env.URL}/profile`,
             permanent: false,
           },
         };
