@@ -52,8 +52,8 @@ const ProductDetail=({product})=>{
                 <Grid item xs={12} md={4}>
                     <Image
                         src={product.image}
-                        width="400"
-                        height="600"
+                        width={400}
+                        height={600}
                         />
                 </Grid>
                 <Grid item xs={12} md={8}>

@@ -10,9 +10,15 @@ import NextNprogress from 'nextjs-progressbar';
 import CartContext from "../context/CartContext"
 // Client-side cache, shared for the whole session of the user in the browser.
 const clientSideEmotionCache = createEmotionCache();
+import { SessionProvider } from "next-auth/react";
+import "./App.css"
 
 export default function MyApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  const {
+    Component,
+    emotionCache = clientSideEmotionCache,
+    pageProps: { session, ...pageProps },
+  } = props;
 
   return (
     <CacheProvider value={emotionCache}>
@@ -28,7 +34,9 @@ export default function MyApp(props) {
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
          <CartContext>
-             <Component {...pageProps} />
+               <SessionProvider session={session}>
+                 <Component {...pageProps} />
+             </SessionProvider>
           </CartContext>
       </ThemeProvider>
     </CacheProvider>

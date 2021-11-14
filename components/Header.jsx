@@ -1,38 +1,40 @@
-import SearchProducts from "./ui/Search/SearchProducts"
-import {useContext,useMemo} from "react"
-import {Cart} from "../context/CartContext"
-import {  alpha, styled } from '@mui/material/styles';
+import {useSession} from "next-auth/react"
+import { alpha, styled } from '@mui/material/styles';
+import {useContext, useMemo} from "react"
+import Image from "next/image"
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import AppBar from "@mui/material/AppBar";
+import {Badge} from "@mui/material"
 import Box from "@mui/material/Box";
 import Button from '@mui/material/Button';
+import {Cart} from "../context/CartContext"
+import Checkbox from '@mui/material/Checkbox';
+import DeleteIcon from '@mui/icons-material/Delete';
 import Divider from '@mui/material/Divider';
+import Grid from '@mui/material/Grid';
 import IconButton from "@mui/material/IconButton";
-import Image from "next/image"
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import InputBase from "@mui/material/InputBase";
 import Link from "../src/Link"
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from "@mui/icons-material/Menu";
+import SearchProducts from "./ui/Search/SearchProducts"
+import SendIcon from '@mui/icons-material/Send';
+import ShoppingCart from "./ui/ShoppingCart"
+import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
+import Slide from '@mui/material/Slide';
 import SwipeableDrawer from '@mui/material/SwipeableDrawer';
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import {useState} from "react"
-import {Badge} from "@mui/material"
-import Checkbox from '@mui/material/Checkbox';
-import DeleteIcon from '@mui/icons-material/Delete';
-import ListItemButton from '@mui/material/ListItemButton';
-import SendIcon from '@mui/icons-material/Send';
-import Grid from '@mui/material/Grid';
 import useScrollTrigger from '@mui/material/useScrollTrigger';
-import Slide from '@mui/material/Slide';
-import ShoppingCart from "./ui/ShoppingCart"
-
+import {useState} from "react"
+import Avatar from '@mui/material/Avatar';
 
 const HeaderMargin=styled('div')(({theme})=>({
      ...theme.mixins.toolbar,
@@ -44,6 +46,30 @@ const HeaderMargin=styled('div')(({theme})=>({
     },
 }))
 
+
+function HideOnScroll(props) {
+
+const { children, window } = props;
+
+
+
+const trigger = useScrollTrigger({
+  target: window ? window() : undefined,
+});
+  
+  console.log(trigger)
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
+  );
+}
+
+
+const Header = (props) => {
+    
+  const usersession= useSession();
+    console.log(usersession);
 
 
 const list= (
@@ -65,31 +91,32 @@ const list= (
                       </ListItemIcon>
                       <ListItemText primary="About" />
                     </ListItem>
+                    {
+                      !usersession.data && (
+                            <ListItem button  style={{padding:'20px',justifyContent:'center'}} component={Link} href="/auth/signin">
+                              <ListItemIcon>
+                                  <LockOpenIcon /> 
+                              </ListItemIcon>
+                               <ListItemText primary="Sign In" />
+                            </ListItem>
+                      )
+                    }
+                    {
+                      usersession.data && (
+                            <ListItem button  style={{padding:'20px',justifyContent:'center'}} component={Link} href="/api/auth/signout">
+                              <ListItemIcon>
+                                  <LockOpenIcon color="error"/> 
+                              </ListItemIcon>
+                               <ListItemText primary="Sign Out" style={{color:"red"}}/>
+                            </ListItem>
+                      )
+                    }
+                  
                 </List>
                 {/* <Divider /> */}
           </Box>
 
 )
-function HideOnScroll(props) {
-
-const { children, window } = props;
-// Note that you normally won't need to set the window ref as useScrollTrigger
-// will default to window.
-// This is only being set here because the demo is in an iframe.
-const trigger = useScrollTrigger({
-  target: window ? window() : undefined,
-});
-  
-  console.log(trigger)
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
-
-
-const Header = (props) => {
 
   const data =useContext(Cart)
   // const cart={state}
@@ -157,16 +184,27 @@ const Header = (props) => {
                   </Badge>
 
          </IconButton>
+            {
+           usersession.status=="authenticated" &&
+           (<IconButton
+                  size="medium"
+                  edge="start"
+                  color="primary"
+                  aria-label="open drawer"
+                  sx={{ mr: 2 }}
+                  component={Link}
+                  href="/Profile"
+                >
+                 <Image  src={usersession.data.user.image} width={40} height={40} className="avatar" />
+                
+                </IconButton>)
+         }
+             
               </Toolbar>
             </AppBar>
        </HideOnScroll>
     </Box>
-    {/* <Image src="https://images.unsplash.com/photo-1599420186946-7b6fb4e297f0?ixid=MnwxMjA3fDF8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=687&q=180"
-           alt="Some title" 
-           width={1600} 
-           height={800}
-           responsive={true}
-       /> */}
+   
            <SwipeableDrawer
               anchor='left'
               open={state.left}
