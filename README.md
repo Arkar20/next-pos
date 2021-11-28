@@ -2,6 +2,10 @@
 
 Building the e-commerce website using next.js. Currently Work in Progress.
 
+
+## Live Demo
+https://next-pos-eight.vercel.app/Home
+
 ## Featues
 
 MUI v-5
